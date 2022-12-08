@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="boardMapper">
+	<!-- 선언 순서 상관없고 조회하는 컬럼 개수 상관 없음(조회 결과 컬럼만 데이터 매핑) -->
+	<resultMap type="board" id="boardResult">
+		<result column="BOARD_NO" property="boardNo"/>
+		<result column="BOARD_TITLE" property="boardTitle"/>
+		<result column="BOARD_CONTENT" property="boardContent"/>
+		<result column="USER_ID" property="boardWriter"/>
+		<result column="COUNT" property="count"/>
+		<result column="CREATE_DATE" property="createDate"/>
+		<result column="STATUS" property="status"/>
+	</resultMap>
+	
+	<select id="selectListCount" resultType="int">
+		SELECT COUNT(*)
+		FROM BOARD
+		WHERE STATUS = 'Y'
+	</select>
+	
+	<select id="selectList" resultMap="boardResult">
+		SELECT BOARD_NO, BOARD_TITLE, USER_ID, COUNT, CREATE_DATE
+		FROM BOARD B
+		JOIN MEMBER ON (BOARD_WRITER = USER_NO)
+		WHERE B.STATUS = 'Y'
+		ORDER BY CREATE_DATE DESC
+	</select>
+	
+	<update id="increaseCount" parameterType="_int">
+		UPDATE BOARD
+		SET COUNT = COUNT + 1
+		WHERE BOARD_NO = #{boardNo}
+		AND STATUS = 'Y'
+	</update>
+	
+	<!-- 파라미터 타입은 자동추론 되기 때문에 생략해도 된다. -->
+	<select id="selectBoard" resultMap="boardResult" parameterType="_int">
+		SELECT BOARD_NO
+		     , BOARD_TITLE
+		     , BOARD_CONTENT
+		     , USER_ID
+		     , COUNT
+		     , CREATE_DATE
+		FROM BOARD B
+		JOIN MEMBER ON (BOARD_WRITER = USER_NO)
+		WHERE BOARD_NO = #{boardNo}
+		AND B.STATUS = 'Y'
+	</select>
+	
+	<resultMap type="reply" id="replyResult">
+		<result column="REPLY_NO" property="replyNo"/>
+		<result column="REPLY_CONTENT" property="replyContent"/>
+		<result column="USER_ID" property="replyWriter"/>
+		<result column="CREATE_DATE" property="createDate"/>
+	</resultMap>
+	
+	<select id="selectReplyList" resultMap="replyResult" parameterType="_int">
+		SELECT REPLY_NO
+			  ,REPLY_CONTENT
+			  ,USER_ID
+			  ,CREATE_DATE
+		FROM REPLY R
+		JOIN MEMBER ON (REPLY_WRITER = USER_NO)
+		WHERE REF_BNO = #{boardNo}
+		AND R.STATUS = 'Y'
+		ORDER BY CREATE_DATE DESC
+	</select>
+	
+	<insert id="insertReply" parameterType="Reply">
+		INSERT INTO REPLY(REPLY_NO
+						, REPLY_CONTENT
+						, REF_BNO
+						, REPLY_WRITER)
+					VALUES(SEQ_RNO.NEXTVAL,#{replyContent},#{refBno},#{replyWriter})
+	</insert>
+	
+	<select id="searchList" parameterType="hashmap" resultMap="boardResult">
+		SELECT BOARD_NO, BOARD_TITLE, USER_ID, COUNT, CREATE_DATE
+		FROM BOARD B
+		JOIN MEMBER ON (BOARD_WRITER = USER_NO)
+		WHERE B.STATUS = 'Y'
+		<choose>
+			<when test="category == 'writer'">
+				<!-- 작성자 -->
+				AND USER_ID
+			</when>
+			<when test="category == 'title'">
+				<!-- 제목 -->
+				AND BOARD_TITLE
+			</when>
+			<otherwise>
+				<!-- 내용 -->
+				AND BOARD_CONTENT
+			</otherwise>
+		</choose>
+		<!-- 공통적으로 사용할 수 있는 구문 -->
+		LIKE '%' ||#{keyword}|| '%'
+		ORDER BY CREATE_DATE DESC
+	</select>
+	
+	<select id="searchCount" parameterType="hashmap" resultType="_int">
+		SELECT COUNT(*)
+		FROM BOARD B
+		JOIN MEMBER ON (BOARD_WRITER = USER_NO)
+		WHERE B.STATUS='Y'
+		<choose>
+			<when test="category=='writer'">
+				<!-- 작성자 -->
+				AND USER_ID			
+			</when>
+			<when test="category=='title'">
+				<!-- 제목 -->
+				AND BOARD_TITLE			
+			</when>
+			<otherwise>
+				<!-- 내용 -->
+				AND BOARD_CONTENT			
+			</otherwise>		
+		</choose>
+		
+		<!-- 공통적으로 사용할 수 있는 구문 -->
+		LIKE '%'||#{keyword}||'%'
+		ORDER BY CREATE_DATE DESC	
+	</select>
+	
+</mapper>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

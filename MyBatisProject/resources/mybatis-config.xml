@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration
+  PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+	<!-- 이 문서의 형식이 configuration(환경설정) 임을 알려준다.
+		configuration 태그가 전체를 감싸는 형태
+		DTD: 유효성검사(태그들이 configuration설정 태그인지 확인) -->
+	<!-- settings: mybatis 구동시 초기설정 작업 -->
+	<settings>
+		<!-- 만약 데이터가 전달되지 않았다면 NULL로 인식하겠다. -->
+		<setting name="jdbcTypeForNull" value="NULL"/>
+	</settings>
+	<!-- 별칭 부여 영역 type alias -->
+	<typeAliases>
+		<typeAlias alias="member" type="com.kh.mybatis.member.model.vo.Member"/>
+		<typeAlias alias="board" type="com.kh.mybatis.board.model.vo.Board"/>
+		<typeAlias alias="reply" type="com.kh.mybatis.board.model.vo.Reply"/>
+	</typeAliases>
+		
+	<!-- 
+	environments: mybatis에서 연동할 데이터베이스 정보 등록 영역(여러개도 가능)
+				  -여러개 등록시 default설정으로 기본 db를 설정해야 한다.
+	 -->
+	<environments default="development">
+	
+    <environment id="development">
+    	<!-- 
+    		transactionManager: JDBC / MANAGED 둘 중 하나를 선택 가능.
+    		-JDBC: 트랜잭션 처리를 직접 하겠다 (수동)
+    		-MANAGED: 트랜잭션 처리를 관여하지 않겠다 (자동)
+    	 -->
+      <transactionManager type="JDBC"/>
+      
+      <!-- 
+      	dataSource: POOLED / UNPOOLED 둘 중 하나 선택 가능.
+      	-POOLED: connection객체를 담아둘 수 있는 영역을 사용하겠다. (connection pool)
+      				-한 번 생성된 connection객체를 재사용하는 것
+      	-UNPOOLED: connection pool을 사용하지 않겠다.
+       -->
+      <dataSource type="POOLED">
+        <property name="driver" value="oracle.jdbc.driver.OracleDriver"/>
+        <property name="url" value="jdbc:oracle:thin:@localhost:1521:xe"/>
+        <property name="username" value="MYBATIS"/>
+        <property name="password" value="MYBATIS"/>
+      </dataSource>
+    </environment>
+  </environments>
+	
+	<!-- mapper 파일 등록 영역 -->
+	<mappers>
+		<mapper resource="/mappers/member-mapper.xml"/>
+		<mapper resource="/mappers/board-mapper.xml"/>
+	</mappers>
+	
+
+</configuration>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
+  
+
+  
